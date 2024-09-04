@@ -13,29 +13,58 @@ describe('Payment Service', () => {
 
   test('should successfully process a valid payment', () => {
     // Arrange
-    //TODO: Create paymentDetails object initialized with fake data
-    //TODO: Create mockProcessPaymentResponse object containing success status and a fake transactiondId
-    //TODO: Mock processPayment implementation
+    const paymentDetailsMock: PaymentDetails = {
+      amount: 3000,
+      currency: 'USD',
+      method: PaymentMethod.CreditCard,
+      cardNumber: '4111111111111111',
+    };
+
+    const mockProcessPaymentResponse = {
+      status: 'success',
+      transactionId: '123456789',
+    };
+
+    paymentAdapterMock.processPayment.mockImplementation((paymentDetails: PaymentDetails) => mockProcessPaymentResponse);
+
     // Act
-    //const result = paymentService.makePayment(paymentDetails);
+    const result = paymentService.makePayment(paymentDetailsMock);
+
     // Assert
-    // Check the returned result is equal to the success message returned by makePayment with thefake  transactionId you have defined in mockProcessPaymentResponse
-    // Check that processPayment inside makePayment has been called with paymentDetails
+    expect(result).toEqual(`Payment successful. Transaction ID: ${mockProcessPaymentResponse.transactionId}`);
+    expect(paymentAdapterMock.processPayment).toHaveBeenCalledWith(paymentDetailsMock);
   });
 
   test('should throw an error for payment failure', () => {
     // Arrange
-    //TODO: Create paymentDetails object initialized with fake data
-    //TODO: Create mockProcessPaymentResponse object containing failure status
-    //TODO: Mock processPayment implementation
+    const paymentDetailsMock: PaymentDetails = {
+      amount: 3000,
+      currency: 'USD',
+      method: PaymentMethod.PayPal,
+      cardNumber: '4111111111111111',
+    };
+
+    const mockProcessPaymentResponse = {
+      status: 'failure',
+      error: 'Payment was declined',
+    };
+
+    paymentAdapterMock.processPayment.mockImplementation(() => mockProcessPaymentResponse);
+
     // Act & Assert
-    //expect(() => paymentService.makePayment(paymentDetails)).toThrow('Payment failed');
+    expect(() => paymentService.makePayment(paymentDetailsMock)).toThrow('Payment failed');
   });
 
   test('should throw an error for invalid payment amount', () => {
     // Arrange
-    //TODO: Create paymentDetails object initialized with fake data where amount should be negative or undefined
+    const paymentDetailsMock: PaymentDetails = {
+      amount: -500,
+      currency: 'USD',
+      method: PaymentMethod.CreditCard,
+      cardNumber: '4111111111111111',
+    };
+
     // Act & Assert
-    //expect(() => paymentService.makePayment(paymentDetails)).toThrow('Invalid payment amount');
+    expect(() => paymentService.makePayment(paymentDetailsMock)).toThrow('Invalid payment amount');
   });
 });
